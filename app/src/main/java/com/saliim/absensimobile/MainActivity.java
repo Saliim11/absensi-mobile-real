@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
     private Uri uri;
 
-    public ImageView imageView, mPhoto;
+    public ImageView imageView, mPhoto, mAbsen2;
     Button mAbsen, mClear, btnChoose;
 
     @Override
@@ -129,14 +129,16 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
 //        mAppExcutor = new AppExecutor();
 
-        mPhoto = findViewById(R.id.btn_absen);
+        mPhoto = findViewById(R.id.btn_tp);
         imageView = findViewById(R.id.imageView);
-        mAbsen = findViewById(R.id.save);
+        mAbsen = findViewById(R.id.btn_absen);
+        mAbsen2 = findViewById(R.id.btn_absen2);
         mClear = findViewById(R.id.clear);
         btnChoose = findViewById(R.id.gallery);
 
         imageView.setVisibility(View.GONE);
         mPhoto.setVisibility(View.VISIBLE);
+        mAbsen2.setVisibility(View.GONE);
         mAbsen.setVisibility(View.GONE);
         mClear.setVisibility(View.GONE);
         btnChoose.setVisibility(View.GONE);
@@ -155,18 +157,21 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
                 if (uri != null){
                     File file = FileUtils.getFile(this, uri);
                     uploadImageByMultipart(file);
+//                    mAbsen2.setVisibility(View.VISIBLE);
                 }else{
                     Toast.makeText(this, "gagal upload file", Toast.LENGTH_SHORT).show();
                 }
 
             });
 
-        mClear.setOnClickListener(v ->{
-            clear();
-        });
+        mClear.setOnClickListener(v -> clear());
 
-        btnChoose.setOnClickListener(v ->
-                choosenPhoto());
+        btnChoose.setOnClickListener(v -> choosenPhoto());
+
+//        mAbsen2.setOnClickListener(v -> {
+//            mAbsen2.setVisibility(View.GONE);
+//            mAbsen.setVisibility(View.VISIBLE);
+//        });
     }
 
     @Override
@@ -664,6 +669,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
     public void clear(){
         imageView.setImageResource(0);
+        imageView.setVisibility(View.GONE);
         mPhoto.setVisibility(View.VISIBLE);
         mAbsen.setVisibility(View.GONE);
         mClear.setVisibility(View.GONE);
@@ -676,6 +682,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         mPhoto.setVisibility(View.GONE);
         mAbsen.setVisibility(View.VISIBLE);
         mClear.setVisibility(View.VISIBLE);
+        imageView.setBackgroundResource(R.drawable.ic_picture);
         imageView.setVisibility(View.VISIBLE);
         btnChoose.setVisibility(View.VISIBLE);
 

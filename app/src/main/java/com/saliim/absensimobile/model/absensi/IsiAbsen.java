@@ -7,6 +7,9 @@ public class IsiAbsen{
 	@SerializedName("status_absen")
 	private String statusAbsen;
 
+	@SerializedName("id")
+	private String id;
+
 	@SerializedName("nama")
 	private String nama;
 
@@ -28,6 +31,14 @@ public class IsiAbsen{
 
 	public String getStatusAbsen(){
 		return statusAbsen;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getId() {
+		return id;
 	}
 
 	public void setNama(String nama){
