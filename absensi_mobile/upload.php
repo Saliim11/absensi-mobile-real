@@ -1,4 +1,8 @@
 <?php
+	include "connect.php";
+
+	$con = mysqli_connect(HOST,USER,PASSWORD,DATABASE);
+
 	$action = htmlspecialchars($_POST['action']);
 
 	$response = array("success" => FALSE);
@@ -9,13 +13,18 @@
 			$response["message"] = "Upload Failed";
 	    } else {
 			$name_file=htmlspecialchars($_FILES['photo']['name']);
+			$path = "gambar/" . $name_file;
+
+
+
 			
 	        if (@getimagesize($_FILES["photo"]["tmp_name"]) !== false) {
 
-				move_uploaded_file($_FILES["photo"]["tmp_name"], $name_file);
+				move_uploaded_file($_FILES["photo"]["tmp_name"], $path);
 
 				$response["success"] = TRUE;
-			    $response["message"] = "Upload Successfull";
+				$response["message"] = "Upload Successfull";
+				$response["path"] = $path;
 				
 			}else{
 				$response["success"] = FALSE;

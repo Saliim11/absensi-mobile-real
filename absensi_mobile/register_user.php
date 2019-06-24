@@ -8,7 +8,7 @@ $response = array();
 $nama = $_POST['nama'];
 $username = $_POST['vsusername'];
 $password = md5($_POST['vspassword']);
-$level = $_POST['vslevel'];
+$level = "normal user";
 
 $sql = "INSERT INTO users(id, nama, vsusername, vspassword, vslevel) VALUES(UUID(),'$nama','$username','$password','$level')";
 

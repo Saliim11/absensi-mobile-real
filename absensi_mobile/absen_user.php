@@ -13,7 +13,12 @@ $lokasi = $_POST['lokasi'];
 $status_absen = $_POST['status_absen'];
 $gambar = $_POST['gambar'];
 
-$sql = "INSERT INTO absen_user(id, nama, lokasi, status_absen, gambar, created) VALUES(UUID(),'$nama','$lokasi','$status_absen','$gambar','".date('Y-m-d H:i:s')."')";
+
+$ImagePath = "$gambar";
+ 
+$ServerURL = "$ImagePath";
+
+$sql = "INSERT INTO absen_user(id, nama, lokasi, status_absen, gambar, created) VALUES(UUID(),'$nama','$lokasi','$status_absen','$ServerURL','".date('Y-m-d H:i:s')."')";
 
 $result = mysqli_query($con, $sql);
 
@@ -24,6 +29,9 @@ if ($result) {
     $resp["lokasi"] = $lokasi;
     $resp["status_absen"] = $status_absen;
     $resp["gambar"] = $gambar;
+    
+
+    echo "Your Image Has Been Uploaded.";
 
 }else{
 	$resp["status"] = "0";
