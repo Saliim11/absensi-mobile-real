@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="none">
+        <item
+            android:id="@+id/add_admin"
+            android:icon="@drawable/add_user"
+            android:title="Tambah Admin" />
+        <item
+            android:id="@+id/add_location"
+            android:icon="@drawable/add_location"
+            android:title="Tambah Lokasi" />
+        <item
+            android:id="@+id/logout"
+            android:icon="@drawable/logout"
+            android:title="Logout" />
+
+    </group>
+
+</menu>
