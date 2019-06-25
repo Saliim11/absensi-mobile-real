@@ -9,9 +9,11 @@ import androidx.core.content.FileProvider;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -103,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
     private static final int PERMISSION_REQUEST_STORAGE = 2;
 
     private static final String TYPE_1 = "multipart";
+    private static final String TYPE_2 = "base64";
 
     private static final String FILE_PROVIDER_AUTHORITY = "com.google.android.provider";
 
@@ -113,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
     private Bitmap mResultsBitmap;
 
-    private Uri uri;
+//    private Uri uri;
 
     public ImageView imageView, mPhoto, mAbsen2;
     Button mAbsen, mClear, btnChoose;
@@ -154,19 +157,19 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
         mAbsen.setOnClickListener(v ->{
 
-                if (uri != null){
-                    File file = FileUtils.getFile(this, uri);
-                    uploadImageByMultipart(file);
-//                    mAbsen2.setVisibility(View.VISIBLE);
-                }else{
-                    Toast.makeText(this, "gagal upload file", Toast.LENGTH_SHORT).show();
-                }
+            if (mResultsBitmap != null){
+                String encode = ImageUtils.bitmapToBase64String(mResultsBitmap, 100);
+                uploadBase64(encode);
+            }else{
+                Toast.makeText(this, "tidak ada gambar", Toast.LENGTH_SHORT).show();
+            }
 
+            Log.d("mResultsBitmap", String.valueOf(mResultsBitmap));
             });
 
         mClear.setOnClickListener(v -> clear());
 
-        btnChoose.setOnClickListener(v -> choosenPhoto());
+//        btnChoose.setOnClickListener(v -> choosenPhoto());
 
 //        mAbsen2.setOnClickListener(v -> {
 //            mAbsen2.setVisibility(View.GONE);
@@ -210,19 +213,31 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
             Toast.makeText(this, "Anda masih di luar lokasi", Toast.LENGTH_SHORT).show();
             return;
         }
+        String gambarNull = "-";
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder .setMessage("Ingin Menambahkan Foto pada Absen?")
+                .setPositiveButton("Iya", (dialog, which) -> {
+                    // Check for the external storage permission
+                    if (ContextCompat.checkSelfPermission(getApplicationContext(),
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            != PackageManager.PERMISSION_GRANTED) {
 
-        // Check for the external storage permission
-        if (ContextCompat.checkSelfPermission(getApplicationContext(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
+                        // If you do not have permission, request it
+                        ActivityCompat.requestPermissions(this,
+                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA},
+                                REQUEST_STORAGE_PERMISSION);
+                    }else{
+                        launchCamera();
+                    }
+                })
+                .setNegativeButton("Tidak", (dialog, which) -> {
+                    dialog.dismiss();
+                    IsiAbsen(gambarNull);
+                });
+        builder.create();
+        builder.show();
 
-            // If you do not have permission, request it
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA},
-                    REQUEST_STORAGE_PERMISSION);
-        }else{
-            launchCamera();
-        }
+
     }
 
     @Override
@@ -231,18 +246,18 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         // If the image capture activity was called and was successful
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
 
+//            absenMenu();
             processAndSetImage();
 
-            if (data != null){
-                uri = data.getData();
+            imageView.setImageBitmap(mResultsBitmap);
+            saveImage(this, mResultsBitmap);
 
-                imageView.setImageURI(uri);
-            }else {
-                saveImage(this, mResultsBitmap);
-                Toast.makeText(this, "pilih gambar terlebih dahulu", Toast.LENGTH_SHORT).show();
-            }
         }
     }
+
+//    private void absenMenu() {
+//
+//    }
 
     /**
      * Builds and returns a GeofencingRequest. Specifies the list of geofences to be monitored.
@@ -578,12 +593,12 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
                 }
                 break;
             }
-            case PERMISSION_REQUEST_STORAGE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    openGallery();
-                }
-                break;
-            }
+//            case PERMISSION_REQUEST_STORAGE: {
+//                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+//                    openGallery();
+//                }
+//                break;
+//            }
         }
     }
 
@@ -591,6 +606,8 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
     private void launchCamera(){
         // Create the capture image intent
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+//        uri = Uri.fromFile();
 
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
@@ -621,6 +638,18 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
             }
         }
     }
+
+//    File getOutputMediaFile(){
+//        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+//                Environment.DIRECTORY_PICTURES) + "/MyCamera");
+//
+//        if (!mediaStorageDir.exists()){
+//            if (!mediaStorageDir.mkdirs()){
+//
+//            }
+//        }
+//        return null;
+//    }
 
     String saveImage(Context context, Bitmap image){
         savedImagePath = null;
@@ -684,7 +713,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         mClear.setVisibility(View.VISIBLE);
         imageView.setBackgroundResource(R.drawable.ic_picture);
         imageView.setVisibility(View.VISIBLE);
-        btnChoose.setVisibility(View.VISIBLE);
+//        btnChoose.setVisibility(View.VISIBLE);
 
         // Resample the saved image to fit the ImageView
         mResultsBitmap = resamplePic(this, mTempPhotoPath);
@@ -732,7 +761,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         return BitmapFactory.decodeFile(imagePath);
     }
 
-    //pick from gallery part
+    //Upload gambar dgn Multipart
     private void uploadImageByMultipart(File file){
         ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
         progressDialog.setMessage("Memuat Data Absen.....");
@@ -751,7 +780,6 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
                 if (baseResponse != null && baseResponse.isSuccess() == true){
                     String gambarPath = baseResponse.getPath();
                     IsiAbsen(gambarPath);
-//                    Toast.makeText(MainActivity.this, baseResponse.getMessage(), Toast.LENGTH_SHORT).show();
                     Log.d("baseResponse", baseResponse.getMessage());
                     progressDialog.dismiss();
 
@@ -766,24 +794,51 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         });
     }
 
-    private void choosenPhoto(){
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    PERMISSION_REQUEST_STORAGE);
-        }else{
-            openGallery();
-        }
+    //Upload gambar dgn Base64
+    private void uploadBase64(String imgBase64) {
+        ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
+        progressDialog.setMessage("Memuat Data Absen.....");
+        progressDialog.show();
+
+        API.uploadPhotoBase64(TYPE_2, imgBase64).enqueue(new Callback<BaseResponse>() {
+            @Override
+            public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
+                BaseResponse baseResponse = (BaseResponse) response.body();
+
+                if(baseResponse != null) {
+                    String gambarPath = baseResponse.getPath();
+                    IsiAbsen(gambarPath);
+                    progressDialog.dismiss();
+                    Log.d("baseResponse", baseResponse.getPath());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<BaseResponse> call, Throwable t) {
+                progressDialog.dismiss();
+                t.printStackTrace();
+            }
+        });
     }
 
-    private void openGallery() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE);
-    }
+//    private void choosenPhoto(){
+//        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+//                != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+//                != PackageManager.PERMISSION_GRANTED){
+//            ActivityCompat.requestPermissions(this,
+//                    new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+//                    PERMISSION_REQUEST_STORAGE);
+//        }else{
+//            openGallery();
+//        }
+//    }
+//
+//    private void openGallery() {
+//        Intent intent = new Intent();
+//        intent.setType("image/*");
+//        intent.setAction(Intent.ACTION_GET_CONTENT);
+//        startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE);
+//    }
 
 
 }

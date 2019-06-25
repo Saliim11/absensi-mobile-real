@@ -2,6 +2,7 @@ package com.saliim.absensimobile.api;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.saliim.absensimobile.model.absensi.AbsenKeluar;
 import com.saliim.absensimobile.model.absensi.DataAbsen;
 import com.saliim.absensimobile.model.absensi.IsiAbsen;
 import com.saliim.absensimobile.model.loginUser.LoginUser;
@@ -22,12 +23,14 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
+import retrofit2.http.Query;
 
 public class API {
 
@@ -80,6 +83,11 @@ public class API {
         return service.addAbsen(nama, lokasi, status_absen, gambar);
     }
 
+    public static Call<AbsenKeluar> delAbsen(String nama) {
+        AbsensiService service = getInstance().create(AbsensiService.class);
+        return service.delAbsen(nama);
+    }
+
     public static Call<ArrayList<DataLokasi>> dataLokasi() {
         AbsensiService service = getInstance().create(AbsensiService.class);
         return service.dataLokasi();
@@ -93,6 +101,11 @@ public class API {
     public static Call<BaseResponse> uploadPhoto(RequestBody action, MultipartBody.Part photo){
         AbsensiService service = getInstance().create(AbsensiService.class);
         return service.uploadPhoto(action, photo);
+    }
+
+    public static Call<BaseResponse> uploadPhotoBase64(String action, String photo){
+        AbsensiService service = getInstance().create(AbsensiService.class);
+        return service.uploadPhotoBase64(action, photo);
     }
 
     public interface AbsensiService {
@@ -134,6 +147,10 @@ public class API {
                 @Field("status_absen") String status_absen,
                 @Field("gambar") String gambar);
 
+        @DELETE("absen_keluar.php")
+        Call<AbsenKeluar> delAbsen(
+                @Query("nama") String nama);
+
         @GET("get_lokasi.php")
         Call<ArrayList<DataLokasi>> dataLokasi();
 
@@ -145,5 +162,11 @@ public class API {
         Call<BaseResponse> uploadPhoto(
                 @Part("action")RequestBody action,
                 @Part MultipartBody.Part photo);
+
+        @FormUrlEncoded
+        @POST("upload.php")
+        Call<BaseResponse> uploadPhotoBase64(
+                @Field("action") String action,
+                @Field("photo") String photo);
     }
 }
