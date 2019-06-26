@@ -38,31 +38,40 @@ public class RegisterActivity extends AppCompatActivity {
         Button regSubmit = findViewById(R.id.btn_reg_submit);
 
         regSubmit.setOnClickListener(v -> {
-            final ProgressDialog progressDialog = new ProgressDialog(RegisterActivity.this);
-            progressDialog.setMessage("Membuat User Baru......");
-            progressDialog.show();
-
+            String inNama2 = LoginActivity.name;
             String inNama = etRegNama.getText().toString();
             String inRegUn = etRegUsername.getText().toString();
             String inRegPw = etRegPassword.getText().toString();
 
-            API.registerUsers(inNama, inRegUn, inRegPw).enqueue(new Callback<RegisterUser>() {
-                @Override
-                public void onResponse(Call<RegisterUser> call, Response<RegisterUser> response) {
-                    if (response.code() == 200){
-                        Log.i("registerUser", response.body().toString());
-                        Toast.makeText(RegisterActivity.this, "berhasil", Toast.LENGTH_LONG).show();
-                        progressDialog.dismiss();
-                        finish();
-                    }
-                }
+            Log.d("bandinkeun", inNama + "==" + inNama2);
 
-                @Override
-                public void onFailure(Call<RegisterUser> call, Throwable t) {
-                    Toast.makeText(RegisterActivity.this, "gagal", Toast.LENGTH_LONG).show();
-                    progressDialog.dismiss();
-                }
-            });
+            if (inNama == inNama2){
+                etRegNama.setError("Nama Sudah Diambil");
+            } else {
+                final ProgressDialog progressDialog = new ProgressDialog(RegisterActivity.this);
+                progressDialog.setMessage("Membuat User Baru......");
+                progressDialog.show();
+
+
+                API.registerUsers(inNama, inRegUn, inRegPw).enqueue(new Callback<RegisterUser>() {
+                    @Override
+                    public void onResponse(Call<RegisterUser> call, Response<RegisterUser> response) {
+                        if (response.code() == 200){
+                            Log.i("registerUser", response.body().toString());
+                            Toast.makeText(RegisterActivity.this, "berhasil", Toast.LENGTH_LONG).show();
+                            progressDialog.dismiss();
+                            finish();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<RegisterUser> call, Throwable t) {
+                        Toast.makeText(RegisterActivity.this, "gagal", Toast.LENGTH_LONG).show();
+                        progressDialog.dismiss();
+                    }
+                });
+            }
+
         });
     }
 

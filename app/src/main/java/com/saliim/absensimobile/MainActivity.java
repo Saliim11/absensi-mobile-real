@@ -13,7 +13,6 @@ import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -41,6 +40,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.saliim.absensimobile.api.API;
 import com.saliim.absensimobile.loginRegister.LoginActivity;
+import com.saliim.absensimobile.model.absensi.AbsenKeluar;
 import com.saliim.absensimobile.model.lokasi.DataLokasi;
 import com.saliim.absensimobile.model.uploadGambar.BaseResponse;
 
@@ -53,9 +53,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -101,9 +98,6 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int REQUEST_STORAGE_PERMISSION = 1;
 
-    private static final int PICK_IMAGE = 1;
-    private static final int PERMISSION_REQUEST_STORAGE = 2;
-
     private static final String TYPE_1 = "multipart";
     private static final String TYPE_2 = "base64";
 
@@ -118,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
 //    private Uri uri;
 
-    public ImageView imageView, mPhoto, mAbsen2;
+    public ImageView imageView, mPhoto, mAbsenK;
     Button mAbsen, mClear, btnChoose;
 
     @Override
@@ -130,18 +124,16 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Absen User");
 
-//        mAppExcutor = new AppExecutor();
-
         mPhoto = findViewById(R.id.btn_tp);
         imageView = findViewById(R.id.imageView);
         mAbsen = findViewById(R.id.btn_absen);
-        mAbsen2 = findViewById(R.id.btn_absen2);
+        mAbsenK = findViewById(R.id.btn_absen_keluar);
         mClear = findViewById(R.id.clear);
         btnChoose = findViewById(R.id.gallery);
 
         imageView.setVisibility(View.GONE);
         mPhoto.setVisibility(View.VISIBLE);
-        mAbsen2.setVisibility(View.GONE);
+        mAbsenK.setVisibility(View.GONE);
         mAbsen.setVisibility(View.GONE);
         mClear.setVisibility(View.GONE);
         btnChoose.setVisibility(View.GONE);
@@ -167,14 +159,42 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
             Log.d("mResultsBitmap", String.valueOf(mResultsBitmap));
             });
 
-        mClear.setOnClickListener(v -> clear());
+        mClear.setOnClickListener(v ->{
+            clear();
+            mPhoto.setVisibility(View.VISIBLE);
+        });
 
-//        btnChoose.setOnClickListener(v -> choosenPhoto());
+        mAbsenK.setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder .setTitle("Peringatan")
+                    .setMessage("Yakin Ingin Absen Keluar?")
+                    .setPositiveButton("Iya", (dialog, which) -> {
+                        String id = LoginActivity.id;
 
-//        mAbsen2.setOnClickListener(v -> {
-//            mAbsen2.setVisibility(View.GONE);
-//            mAbsen.setVisibility(View.VISIBLE);
-//        });
+                        API.delAbsen(id).enqueue(new Callback<AbsenKeluar>() {
+                            @Override
+                            public void onResponse(Call<AbsenKeluar> call, Response<AbsenKeluar> response) {
+                                mAbsenK.setVisibility(View.GONE);
+                                mPhoto.setVisibility(View.VISIBLE);
+                                Toast.makeText(MainActivity.this, "Anda Telah Absen Keluar", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onFailure(Call<AbsenKeluar> call, Throwable t) {
+                                dialog.dismiss();
+                            }
+                        });
+
+                    })
+                    .setNegativeButton("Tidak", (dialog, which) -> {
+                        dialog.dismiss();
+                    });
+
+            builder.create();
+            builder.show();
+
+        });
+
     }
 
     @Override
@@ -206,7 +226,6 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         }
     }
 
-
     public void Absens(View view){
 
         if (btnAvailable == false){
@@ -214,6 +233,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
             return;
         }
         String gambarNull = "-";
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder .setMessage("Ingin Menambahkan Foto pada Absen?")
                 .setPositiveButton("Iya", (dialog, which) -> {
@@ -280,21 +300,25 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
     public void IsiAbsen(String gambarPath){
 
+        String id = LoginActivity.id;
         String nama = LoginActivity.name;
         String lokasi = GeofenceTransitionsJobIntentService.namaLokasi;
         String status = "HADIR";
         String gambar = gambarPath;
 
-        API.addAbsen(nama, lokasi, status, gambar).enqueue(new Callback<ResponseBody>() {
+        API.addAbsen(id, nama, lokasi, status, gambar).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.code() == 200){
                     Log.i("absensi", "" + response.body());
                     Toast.makeText(MainActivity.this, "Terima Kasih", Toast.LENGTH_SHORT).show();
+                    mAbsenK.setVisibility(View.VISIBLE);
+                    mPhoto.setVisibility(View.GONE);
                     clear();
                 } else {
                     Toast.makeText(MainActivity.this, "Silahkan Coba Lagi", Toast.LENGTH_SHORT).show();
                     clear();
+                    mPhoto.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -302,6 +326,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Toast.makeText(MainActivity.this, "Absen Gagal", Toast.LENGTH_SHORT).show();
                 clear();
+                mPhoto.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -334,32 +359,6 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
                 .addOnCompleteListener(this);
     }
 
-//    /**
-//     * Removes geofences, which stops further notifications when the device enters or exits
-//     * previously registered geofences.
-//     */
-//    public void removeGeofencesButtonHandler(View view) {
-//        if (!checkPermissions()) {
-//            mPendingGeofenceTask = PendingGeofenceTask.REMOVE;
-//            requestPermissions();
-//            return;
-//        }
-//        removeGeofences();
-//    }
-//
-//    /**
-//     * Removes geofences. This method should be called after the user has granted the location
-//     * permission.
-//     */
-//    @SuppressWarnings("MissingPermission")
-//    private void removeGeofences() {
-//        if (!checkPermissions()) {
-//            showSnackbar(getString(R.string.insufficient_permissions));
-//            return;
-//        }
-//
-//        mGeofencingClient.removeGeofences(getGeofencePendingIntent()).addOnCompleteListener(this);
-//    }
 
     /**
      * Runs when the result of calling {@link #addGeofences()} and/or {@link #/removeGeofences()}
@@ -593,12 +592,6 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
                 }
                 break;
             }
-//            case PERMISSION_REQUEST_STORAGE: {
-//                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-//                    openGallery();
-//                }
-//                break;
-//            }
         }
     }
 
@@ -639,17 +632,6 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         }
     }
 
-//    File getOutputMediaFile(){
-//        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-//                Environment.DIRECTORY_PICTURES) + "/MyCamera");
-//
-//        if (!mediaStorageDir.exists()){
-//            if (!mediaStorageDir.mkdirs()){
-//
-//            }
-//        }
-//        return null;
-//    }
 
     String saveImage(Context context, Bitmap image){
         savedImagePath = null;
@@ -699,7 +681,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
     public void clear(){
         imageView.setImageResource(0);
         imageView.setVisibility(View.GONE);
-        mPhoto.setVisibility(View.VISIBLE);
+//        mPhoto.setVisibility(View.VISIBLE);
         mAbsen.setVisibility(View.GONE);
         mClear.setVisibility(View.GONE);
         btnChoose.setVisibility(View.GONE);
@@ -713,7 +695,6 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         mClear.setVisibility(View.VISIBLE);
         imageView.setBackgroundResource(R.drawable.ic_picture);
         imageView.setVisibility(View.VISIBLE);
-//        btnChoose.setVisibility(View.VISIBLE);
 
         // Resample the saved image to fit the ImageView
         mResultsBitmap = resamplePic(this, mTempPhotoPath);
@@ -761,39 +742,6 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         return BitmapFactory.decodeFile(imagePath);
     }
 
-    //Upload gambar dgn Multipart
-    private void uploadImageByMultipart(File file){
-        ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
-        progressDialog.setMessage("Memuat Data Absen.....");
-        progressDialog.show();
-
-        RequestBody photoBody = RequestBody.create(MediaType.parse("image/*"), file);
-        MultipartBody.Part photoPart = MultipartBody.Part.createFormData("photo", file.getName(), photoBody);
-
-        RequestBody action = RequestBody.create(MediaType.parse("text/plain"), TYPE_1);
-
-        API.uploadPhoto(action, photoPart).enqueue(new Callback<BaseResponse>() {
-            @Override
-            public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
-                BaseResponse baseResponse = (BaseResponse) response.body();
-
-                if (baseResponse != null && baseResponse.isSuccess() == true){
-                    String gambarPath = baseResponse.getPath();
-                    IsiAbsen(gambarPath);
-                    Log.d("baseResponse", baseResponse.getMessage());
-                    progressDialog.dismiss();
-
-                }
-            }
-
-            @Override
-            public void onFailure(Call<BaseResponse> call, Throwable t) {
-                t.printStackTrace();
-                progressDialog.dismiss();
-            }
-        });
-    }
-
     //Upload gambar dgn Base64
     private void uploadBase64(String imgBase64) {
         ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
@@ -820,26 +768,6 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
             }
         });
     }
-
-//    private void choosenPhoto(){
-//        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
-//                != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//                != PackageManager.PERMISSION_GRANTED){
-//            ActivityCompat.requestPermissions(this,
-//                    new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
-//                    PERMISSION_REQUEST_STORAGE);
-//        }else{
-//            openGallery();
-//        }
-//    }
-//
-//    private void openGallery() {
-//        Intent intent = new Intent();
-//        intent.setType("image/*");
-//        intent.setAction(Intent.ACTION_GET_CONTENT);
-//        startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE);
-//    }
-
 
 }
 

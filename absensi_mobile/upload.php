@@ -14,9 +14,6 @@
 	    } else {
 			$name_file=htmlspecialchars($_FILES['photo']['name']);
 			$path = "gambar/" . $name_file;
-
-
-
 			
 	        if (@getimagesize($_FILES["photo"]["tmp_name"]) !== false) {
 
@@ -40,12 +37,13 @@
 		$photo = str_replace(' ', '+', $photo);
 
 		$data = base64_decode($photo);
-		$file = uniqid() . '.png';
+		$file = "gambar/" . uniqid() . '.png';
 
 		file_put_contents($file, $data);
 
 		$response["success"] = TRUE;
 		$response["message"] = "Upload Successfull";
+		$response["path"] = $file;
 		
 		echo json_encode($response);
 	}

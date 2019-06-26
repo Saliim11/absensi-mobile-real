@@ -8,6 +8,7 @@ $date = date("Y-m-d H:i:s");
 
 $response = array();
 
+$id = $_POST['id'];
 $nama = $_POST['nama'];
 $lokasi = $_POST['lokasi'];
 $status_absen = $_POST['status_absen'];
@@ -18,13 +19,13 @@ $ImagePath = "$gambar";
  
 $ServerURL = "$ImagePath";
 
-$sql = "INSERT INTO absen_user(id, nama, lokasi, status_absen, gambar, created) VALUES(UUID(),'$nama','$lokasi','$status_absen','$ServerURL','".date('Y-m-d H:i:s')."')";
+$sql = "INSERT INTO absen_user(id, nama, lokasi, status_absen, gambar, created) VALUES('$id','$nama','$lokasi','$status_absen','$ServerURL','".date('Y-m-d H:i:s')."')";
 
 $result = mysqli_query($con, $sql);
 
 if ($result) {
     $resp["status"] = "1";
-    $resp["message"] = "Create successfully"; 
+    $resp["message"] = "Absen Berhasil"; 
     $resp["nama"] = $nama;
     $resp["lokasi"] = $lokasi;
     $resp["status_absen"] = $status_absen;
@@ -35,7 +36,7 @@ if ($result) {
 
 }else{
 	$resp["status"] = "0";
-    $resp["message"] = "Create not successfully"; 
+    $resp["message"] = "Absen Gagal"; 
 }
 
 $response=$resp;  

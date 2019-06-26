@@ -26,6 +26,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     public static String name;
+    public static String id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,44 +41,42 @@ public class LoginActivity extends AppCompatActivity {
         Button loginSubmit = findViewById(R.id.btn_login_submit);
         TextView pindahReg = findViewById(R.id.pindah_register);
 
-        loginSubmit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String inLogUn = etLoginUsername.getText().toString();
-                String inLogPw = etLoginPassword.getText().toString();
-                API.loginUsers(inLogUn, inLogPw).enqueue(new Callback<LoginUser>() {
-                    @Override
-                    public void onResponse(Call<LoginUser> call, Response<LoginUser> response) {
-                        Log.d("login", response.body().toString());
+        loginSubmit.setOnClickListener(v -> {
+            String inLogUn = etLoginUsername.getText().toString();
+            String inLogPw = etLoginPassword.getText().toString();
+            API.loginUsers(inLogUn, inLogPw).enqueue(new Callback<LoginUser>() {
+                @Override
+                public void onResponse(Call<LoginUser> call, Response<LoginUser> response) {
+                    Log.d("login", response.body().toString());
 
-                        String status = response.body().getResult();
-                        if (status.equals("1")){
-                            name = response.body().getUser().getNama();
-                            String level = response.body().getUser().getVslevel();
+                    String status = response.body().getResult();
+                    if (status.equals("1")){
+                        name = response.body().getUser().getNama();
+                        id = response.body().getUser().getId();
+                        String level = response.body().getUser().getVslevel();
 
-                            if (level.equals("normal user")){
-                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                        if (level.equals("normal user")){
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
 
-                                Toast.makeText(LoginActivity.this, "berhasil login" , Toast.LENGTH_SHORT).show();
-                                finish();
-                            }else if (level.equals("admin")){
-                                startActivity(new Intent(LoginActivity.this, AdminActivity.class));
+                            Toast.makeText(LoginActivity.this, "berhasil login" , Toast.LENGTH_SHORT).show();
+                            finish();
+                        }else if (level.equals("admin")){
+                            startActivity(new Intent(LoginActivity.this, AdminActivity.class));
 
-                                Toast.makeText(LoginActivity.this, "selamat datang admin" , Toast.LENGTH_SHORT).show();
-                                finish();
-                            }
-
-                        }else{
-                            Toast.makeText(LoginActivity.this, "periksa kembali name dan passwordmu" , Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(LoginActivity.this, "selamat datang admin" , Toast.LENGTH_SHORT).show();
+                            finish();
                         }
-                    }
 
-                    @Override
-                    public void onFailure(Call<LoginUser> call, Throwable t) {
-                        Toast.makeText(LoginActivity.this, "gagal" , Toast.LENGTH_SHORT).show();
+                    }else{
+                        Toast.makeText(LoginActivity.this, "periksa kembali name dan passwordmu" , Toast.LENGTH_SHORT).show();
                     }
-                });
-            }
+                }
+
+                @Override
+                public void onFailure(Call<LoginUser> call, Throwable t) {
+                    Toast.makeText(LoginActivity.this, "gagal" , Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
         pindahReg.setOnClickListener(new View.OnClickListener() {

@@ -78,14 +78,14 @@ public class API {
         return service.addLokasi(lokasi, latitude, longitude, radius);
     }
 
-    public static Call<ResponseBody> addAbsen(String nama, String lokasi, String status_absen, String gambar) {
+    public static Call<ResponseBody> addAbsen(String id, String nama, String lokasi, String status_absen, String gambar) {
         AbsensiService service = getInstance().create(AbsensiService.class);
-        return service.addAbsen(nama, lokasi, status_absen, gambar);
+        return service.addAbsen(id, nama, lokasi, status_absen, gambar);
     }
 
-    public static Call<AbsenKeluar> delAbsen(String nama) {
+    public static Call<AbsenKeluar> delAbsen(String id) {
         AbsensiService service = getInstance().create(AbsensiService.class);
-        return service.delAbsen(nama);
+        return service.delAbsen(id);
     }
 
     public static Call<ArrayList<DataLokasi>> dataLokasi() {
@@ -96,11 +96,6 @@ public class API {
     public static Call<ArrayList<DataAbsen>> dataAbsensi() {
         AbsensiService service = getInstance().create(AbsensiService.class);
         return service.dataAbsensi();
-    }
-
-    public static Call<BaseResponse> uploadPhoto(RequestBody action, MultipartBody.Part photo){
-        AbsensiService service = getInstance().create(AbsensiService.class);
-        return service.uploadPhoto(action, photo);
     }
 
     public static Call<BaseResponse> uploadPhotoBase64(String action, String photo){
@@ -142,6 +137,7 @@ public class API {
         @FormUrlEncoded
         @POST("absen_user.php")
         Call<ResponseBody> addAbsen(
+                @Field("id") String id,
                 @Field("nama") String nama,
                 @Field("lokasi") String lokasi,
                 @Field("status_absen") String status_absen,
@@ -149,19 +145,13 @@ public class API {
 
         @DELETE("absen_keluar.php")
         Call<AbsenKeluar> delAbsen(
-                @Query("nama") String nama);
+                @Query("id") String id);
 
         @GET("get_lokasi.php")
         Call<ArrayList<DataLokasi>> dataLokasi();
 
         @GET("get_absen_user.php")
         Call<ArrayList<DataAbsen>> dataAbsensi();
-
-        @Multipart
-        @POST("upload.php")
-        Call<BaseResponse> uploadPhoto(
-                @Part("action")RequestBody action,
-                @Part MultipartBody.Part photo);
 
         @FormUrlEncoded
         @POST("upload.php")
