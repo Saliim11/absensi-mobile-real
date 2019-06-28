@@ -7,14 +7,14 @@ public class IsiAbsen{
 	@SerializedName("status_absen")
 	private String statusAbsen;
 
-	@SerializedName("id")
-	private String id;
-
 	@SerializedName("nama")
 	private String nama;
 
 	@SerializedName("lokasi")
 	private String lokasi;
+
+	@SerializedName("id_admin")
+	private String idAdmin;
 
 	@SerializedName("gambar")
 	private String gambar;
@@ -33,14 +33,6 @@ public class IsiAbsen{
 		return statusAbsen;
 	}
 
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getId() {
-		return id;
-	}
-
 	public void setNama(String nama){
 		this.nama = nama;
 	}
@@ -55,6 +47,14 @@ public class IsiAbsen{
 
 	public String getLokasi(){
 		return lokasi;
+	}
+
+	public void setIdAdmin(String idAdmin) {
+		this.idAdmin = idAdmin;
+	}
+
+	public String getIdAdmin() {
+		return idAdmin;
 	}
 
 	public void setGambar(String gambar){

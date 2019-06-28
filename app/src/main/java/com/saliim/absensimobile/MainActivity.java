@@ -38,9 +38,11 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.saliim.absensimobile.adapter.AbsensiPerUserAdapter;
 import com.saliim.absensimobile.api.API;
 import com.saliim.absensimobile.loginRegister.LoginActivity;
-import com.saliim.absensimobile.model.absensi.AbsenKeluar;
+import com.saliim.absensimobile.model.absensi.DataAbsenPerUser;
+import com.saliim.absensimobile.model.absensi.UpdateAbsen;
 import com.saliim.absensimobile.model.lokasi.DataLokasi;
 import com.saliim.absensimobile.model.uploadGambar.BaseResponse;
 
@@ -48,11 +50,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -69,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
      * Tracks whether the user requested to add or remove geofences, or to do neither.
      */
     private enum PendingGeofenceTask {
-        ADD, REMOVE, NONE
+        ADD, NONE
     }
 
     /**
@@ -110,10 +115,19 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
     private Bitmap mResultsBitmap;
 
+    int absenCounter = 0;
+
 //    private Uri uri;
 
-    public ImageView imageView, mPhoto, mAbsenK;
-    Button mAbsen, mClear, btnChoose;
+    String dates, dateNow, idUser;
+    Date date;
+
+    ImageView imageView, mPhoto;
+    Button mAbsen, mClear;
+    RecyclerView recylerAbsen;
+    View line;
+
+    ArrayList dataAbsensiperUsers;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -127,16 +141,22 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         mPhoto = findViewById(R.id.btn_tp);
         imageView = findViewById(R.id.imageView);
         mAbsen = findViewById(R.id.btn_absen);
-        mAbsenK = findViewById(R.id.btn_absen_keluar);
         mClear = findViewById(R.id.clear);
-        btnChoose = findViewById(R.id.gallery);
+        recylerAbsen = findViewById(R.id.recycler_absensi_perUser);
+        line = findViewById(R.id.line1);
 
         imageView.setVisibility(View.GONE);
-        mPhoto.setVisibility(View.VISIBLE);
-        mAbsenK.setVisibility(View.GONE);
         mAbsen.setVisibility(View.GONE);
         mClear.setVisibility(View.GONE);
-        btnChoose.setVisibility(View.GONE);
+        mPhoto.setVisibility(View.VISIBLE);
+        recylerAbsen.setVisibility(View.VISIBLE);
+        line.setVisibility(View.VISIBLE);
+
+        getDataAbsenPerUser();
+        dateNow = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+        Log.i("hari ini", dateNow);
+
 
         // Empty list for storing geofences.
         mGeofenceList = new ArrayList<>();
@@ -159,41 +179,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
             Log.d("mResultsBitmap", String.valueOf(mResultsBitmap));
             });
 
-        mClear.setOnClickListener(v ->{
-            clear();
-            mPhoto.setVisibility(View.VISIBLE);
-        });
-
-        mAbsenK.setOnClickListener(v -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder .setTitle("Peringatan")
-                    .setMessage("Yakin Ingin Absen Keluar?")
-                    .setPositiveButton("Iya", (dialog, which) -> {
-                        String id = LoginActivity.id;
-
-                        API.delAbsen(id).enqueue(new Callback<AbsenKeluar>() {
-                            @Override
-                            public void onResponse(Call<AbsenKeluar> call, Response<AbsenKeluar> response) {
-                                mAbsenK.setVisibility(View.GONE);
-                                mPhoto.setVisibility(View.VISIBLE);
-                                Toast.makeText(MainActivity.this, "Anda Telah Absen Keluar", Toast.LENGTH_SHORT).show();
-                            }
-
-                            @Override
-                            public void onFailure(Call<AbsenKeluar> call, Throwable t) {
-                                dialog.dismiss();
-                            }
-                        });
-
-                    })
-                    .setNegativeButton("Tidak", (dialog, which) -> {
-                        dialog.dismiss();
-                    });
-
-            builder.create();
-            builder.show();
-
-        });
+        mClear.setOnClickListener(v -> clear());
 
     }
 
@@ -232,31 +218,37 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
             Toast.makeText(this, "Anda masih di luar lokasi", Toast.LENGTH_SHORT).show();
             return;
         }
-        String gambarNull = "-";
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder .setMessage("Ingin Menambahkan Foto pada Absen?")
-                .setPositiveButton("Iya", (dialog, which) -> {
-                    // Check for the external storage permission
-                    if (ContextCompat.checkSelfPermission(getApplicationContext(),
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                            != PackageManager.PERMISSION_GRANTED) {
+        Log.i("hari itu", String.valueOf(date));
+        Log.i("hari itu2", dates);
+        if (dateNow.equals(dates)){
+            updateAbsen();
+        }else{
+            String gambarNull = "-";
 
-                        // If you do not have permission, request it
-                        ActivityCompat.requestPermissions(this,
-                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA},
-                                REQUEST_STORAGE_PERMISSION);
-                    }else{
-                        launchCamera();
-                    }
-                })
-                .setNegativeButton("Tidak", (dialog, which) -> {
-                    dialog.dismiss();
-                    IsiAbsen(gambarNull);
-                });
-        builder.create();
-        builder.show();
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder .setMessage("Ingin Menambahkan Foto pada Absen?")
+                    .setPositiveButton("Iya", (dialog, which) -> {
+                        // Check for the external storage permission
+                        if (ContextCompat.checkSelfPermission(getApplicationContext(),
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                != PackageManager.PERMISSION_GRANTED) {
 
+                            // If you do not have permission, request it
+                            ActivityCompat.requestPermissions(this,
+                                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA},
+                                    REQUEST_STORAGE_PERMISSION);
+                        }else{
+                            launchCamera();
+                        }
+                    })
+                    .setNegativeButton("Tidak", (dialog, which) -> {
+                        dialog.dismiss();
+                        IsiAbsen(gambarNull);
+                    });
+            builder.create();
+            builder.show();
+        }
 
     }
 
@@ -266,7 +258,6 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         // If the image capture activity was called and was successful
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
 
-//            absenMenu();
             processAndSetImage();
 
             imageView.setImageBitmap(mResultsBitmap);
@@ -274,10 +265,6 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
         }
     }
-
-//    private void absenMenu() {
-//
-//    }
 
     /**
      * Builds and returns a GeofencingRequest. Specifies the list of geofences to be monitored.
@@ -300,25 +287,24 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
     public void IsiAbsen(String gambarPath){
 
-        String id = LoginActivity.id;
+        String id_absen = LoginActivity.id;
         String nama = LoginActivity.name;
         String lokasi = GeofenceTransitionsJobIntentService.namaLokasi;
         String status = "HADIR";
         String gambar = gambarPath;
 
-        API.addAbsen(id, nama, lokasi, status, gambar).enqueue(new Callback<ResponseBody>() {
+        API.addAbsen(nama, lokasi, status, id_absen, gambar).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.code() == 200){
                     Log.i("absensi", "" + response.body());
                     Toast.makeText(MainActivity.this, "Terima Kasih", Toast.LENGTH_SHORT).show();
-                    mAbsenK.setVisibility(View.VISIBLE);
-                    mPhoto.setVisibility(View.GONE);
+                    getDataAbsenPerUser();
+                    absenCounter++;
                     clear();
                 } else {
                     Toast.makeText(MainActivity.this, "Silahkan Coba Lagi", Toast.LENGTH_SHORT).show();
                     clear();
-                    mPhoto.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -326,7 +312,6 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Toast.makeText(MainActivity.this, "Absen Gagal", Toast.LENGTH_SHORT).show();
                 clear();
-                mPhoto.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -681,16 +666,20 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
     public void clear(){
         imageView.setImageResource(0);
         imageView.setVisibility(View.GONE);
-//        mPhoto.setVisibility(View.VISIBLE);
         mAbsen.setVisibility(View.GONE);
         mClear.setVisibility(View.GONE);
-        btnChoose.setVisibility(View.GONE);
+        mPhoto.setVisibility(View.VISIBLE);
+        recylerAbsen.setVisibility(View.VISIBLE);
+        line.setVisibility(View.VISIBLE);
+
     }
 
     private void processAndSetImage() {
 
         // Toggle Visibility of the views
         mPhoto.setVisibility(View.GONE);
+        recylerAbsen.setVisibility(View.GONE);
+        line.setVisibility(View.GONE);
         mAbsen.setVisibility(View.VISIBLE);
         mClear.setVisibility(View.VISIBLE);
         imageView.setBackgroundResource(R.drawable.ic_picture);
@@ -765,6 +754,66 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
             public void onFailure(Call<BaseResponse> call, Throwable t) {
                 progressDialog.dismiss();
                 t.printStackTrace();
+            }
+        });
+    }
+
+    private void getDataAbsenPerUser() {
+        String id_absen = LoginActivity.id;
+
+        API.dataAbsenPerUser(id_absen).enqueue(new Callback<ArrayList<DataAbsenPerUser>>() {
+            @Override
+            public void onResponse(Call<ArrayList<DataAbsenPerUser>> call, Response<ArrayList<DataAbsenPerUser>> response) {
+                if(response.code() == 200){
+                    dataAbsensiperUsers = response.body();
+                    Log.d("dataAbsensiperUser", String.valueOf(dataAbsensiperUsers));
+
+                    if (dataAbsensiperUsers == null){
+                        Toast.makeText(MainActivity.this, "data kosong", Toast.LENGTH_SHORT).show();
+                    }else{
+                        recylerAbsen.hasFixedSize();
+                        recylerAbsen.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                        recylerAbsen.setAdapter(new AbsensiPerUserAdapter(dataAbsensiperUsers));
+
+                        dates = response.body().get(0).getJamMasuk();
+                        idUser = response.body().get(0).getIdUser();
+
+                        try {
+                            date = new SimpleDateFormat("yyyy-MM-dd").parse(dates);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
+                        dates = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date);
+
+                    }
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<DataAbsenPerUser>> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void updateAbsen() {
+        API.updateAbsen(idUser).enqueue(new Callback<UpdateAbsen>() {
+            @Override
+            public void onResponse(Call<UpdateAbsen> call, Response<UpdateAbsen> response) {
+                if (response.code() == 200){
+                    Log.i("update absen", String.valueOf(response.body()));
+                    getDataAbsenPerUser();
+                    Toast.makeText(MainActivity.this, "Jam Pulang Telah Di Update", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(MainActivity.this, "Jam Pulang Gagal DI Update", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UpdateAbsen> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "gagal Update", Toast.LENGTH_SHORT).show();
             }
         });
     }

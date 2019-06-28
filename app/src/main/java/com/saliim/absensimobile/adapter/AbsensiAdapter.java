@@ -35,7 +35,7 @@ public class AbsensiAdapter extends RecyclerView.Adapter<AbsensiAdapter.AbsensiV
         holder.nama.setText(dataAbsen.getNama());
         holder.lokasi.setText("Lokasi: "+dataAbsen.getLokasi());
         holder.status.setText(dataAbsen.getStatusAbsen());
-        holder.tgl.setText(dataAbsen.getCreated());
+        holder.tgl.setText(dataAbsen.getJamMasuk());
     }
 
     @Override

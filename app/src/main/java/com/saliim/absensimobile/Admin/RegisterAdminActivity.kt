@@ -15,6 +15,7 @@ import kotlinx.android.synthetic.main.activity_register_admin.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import kotlin.jvm.java
 
 class RegisterAdminActivity : AppCompatActivity() {
 

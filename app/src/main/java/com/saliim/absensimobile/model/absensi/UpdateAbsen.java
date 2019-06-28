@@ -2,13 +2,13 @@ package com.saliim.absensimobile.model.absensi;
 
 import com.google.gson.annotations.SerializedName;
 
-public class AbsenKeluar{
+public class UpdateAbsen{
 
 	@SerializedName("message")
 	private String message;
 
 	@SerializedName("status")
-	private int status;
+	private String status;
 
 	public void setMessage(String message){
 		this.message = message;
@@ -18,18 +18,18 @@ public class AbsenKeluar{
 		return message;
 	}
 
-	public void setStatus(int status){
+	public void setStatus(String status){
 		this.status = status;
 	}
 
-	public int getStatus(){
+	public String getStatus(){
 		return status;
 	}
 
 	@Override
  	public String toString(){
 		return 
-			"AbsenKeluar{" + 
+			"UpdateAbsen{" + 
 			"message = '" + message + '\'' + 
 			",status = '" + status + '\'' + 
 			"}";

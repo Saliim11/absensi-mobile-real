@@ -13,6 +13,9 @@ public class RegisterUser{
 	@SerializedName("vslevel")
 	private String vslevel;
 
+	@SerializedName("id_admin")
+	private String idAdmin;
+
 	@SerializedName("message")
 	private String message;
 
@@ -41,6 +44,14 @@ public class RegisterUser{
 
 	public String getVslevel(){
 		return vslevel;
+	}
+
+	public void setIdAdmin(String idAdmin) {
+		this.idAdmin = idAdmin;
+	}
+
+	public String getIdAdmin() {
+		return idAdmin;
 	}
 
 	public void setMessage(String message){

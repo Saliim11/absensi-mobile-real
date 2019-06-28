@@ -8,9 +8,10 @@ $response = array();
 $nama = $_POST['nama'];
 $username = $_POST['vsusername'];
 $password = md5($_POST['vspassword']);
-$level = "admin";
+$level = "subAdmin";
+$id_admin = "-";
 
-$sql = "INSERT INTO users(id, nama, vsusername, vspassword, vslevel) VALUES(UUID(),'$nama','$username','$password','$level')";
+$sql = "INSERT INTO users(id, nama, vsusername, vspassword, vslevel, id_admin) VALUES(UUID(),'$nama','$username','$password','$level','$id_admin')";
 
 $result = mysqli_query($con, $sql);
 

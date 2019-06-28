@@ -2,9 +2,10 @@ package com.saliim.absensimobile.api;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.saliim.absensimobile.model.absensi.AbsenKeluar;
+import com.saliim.absensimobile.model.absensi.DataAbsenPerUser;
+import com.saliim.absensimobile.model.absensi.UpdateAbsen;
+import com.saliim.absensimobile.model.users.DataSubAdmin;
 import com.saliim.absensimobile.model.absensi.DataAbsen;
-import com.saliim.absensimobile.model.absensi.IsiAbsen;
 import com.saliim.absensimobile.model.loginUser.LoginUser;
 import com.saliim.absensimobile.model.lokasi.DataLokasi;
 import com.saliim.absensimobile.model.lokasi.InsertLokasi;
@@ -15,21 +16,17 @@ import com.saliim.absensimobile.model.uploadGambar.BaseResponse;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
-import retrofit2.http.Multipart;
 import retrofit2.http.POST;
-import retrofit2.http.Part;
+import retrofit2.http.PUT;
 import retrofit2.http.Query;
 
 public class API {
@@ -58,14 +55,39 @@ public class API {
         return retrofit;
     }
 
+    public static Call<ArrayList<DataLokasi>> dataLokasi() {
+        AbsensiService service = getInstance().create(AbsensiService.class);
+        return service.dataLokasi();
+    }
+
+    public static Call<ArrayList<DataSubAdmin>> dataSubAdmin() {
+        AbsensiService service = getInstance().create(AbsensiService.class);
+        return service.dataSubAdmin();
+    }
+
+    public static Call<ArrayList<DataAbsen>> dataAbsensi() {
+        AbsensiService service = getInstance().create(AbsensiService.class);
+        return service.dataAbsensi();
+    }
+
+    public static Call<ArrayList<DataAbsenPerUser>> dataAbsenPerUser(String idAbsen) {
+        AbsensiService service = getInstance().create(AbsensiService.class);
+        return service.dataAbsenPerUser(idAbsen);
+    }
+
+    public static Call<UpdateAbsen> updateAbsen(String idUser) {
+        AbsensiService service = getInstance().create(AbsensiService.class);
+        return service.updateAbsen(idUser);
+    }
+
     public static Call<LoginUser> loginUsers(String vsusername, String vspassword) {
         AbsensiService service = getInstance().create(AbsensiService.class);
         return service.loginUsers(vsusername, vspassword);
     }
 
-    public static Call<RegisterUser> registerUsers(String nama, String vsusername, String vspassword) {
+    public static Call<RegisterUser> registerUsers(String nama, String vsusername, String vspassword, String idAdmin) {
         AbsensiService service = getInstance().create(AbsensiService.class);
-        return service.registerUsers(nama, vsusername, vspassword);
+        return service.registerUsers(nama, vsusername, vspassword, idAdmin);
     }
 
     public static Call<RegisterAdmin> registerAdmins(String nama, String vsusername, String vspassword) {
@@ -78,24 +100,9 @@ public class API {
         return service.addLokasi(lokasi, latitude, longitude, radius);
     }
 
-    public static Call<ResponseBody> addAbsen(String id, String nama, String lokasi, String status_absen, String gambar) {
+    public static Call<ResponseBody> addAbsen(String nama, String lokasi, String status_absen, String id_admin, String gambar) {
         AbsensiService service = getInstance().create(AbsensiService.class);
-        return service.addAbsen(id, nama, lokasi, status_absen, gambar);
-    }
-
-    public static Call<AbsenKeluar> delAbsen(String id) {
-        AbsensiService service = getInstance().create(AbsensiService.class);
-        return service.delAbsen(id);
-    }
-
-    public static Call<ArrayList<DataLokasi>> dataLokasi() {
-        AbsensiService service = getInstance().create(AbsensiService.class);
-        return service.dataLokasi();
-    }
-
-    public static Call<ArrayList<DataAbsen>> dataAbsensi() {
-        AbsensiService service = getInstance().create(AbsensiService.class);
-        return service.dataAbsensi();
+        return service.addAbsen(nama, lokasi, status_absen, id_admin, gambar);
     }
 
     public static Call<BaseResponse> uploadPhotoBase64(String action, String photo){
@@ -105,6 +112,23 @@ public class API {
 
     public interface AbsensiService {
 
+
+        @GET("get_lokasi.php")
+        Call<ArrayList<DataLokasi>> dataLokasi();
+
+        @GET("get_sub_admin.php")
+        Call<ArrayList<DataSubAdmin>> dataSubAdmin();
+
+        @GET("get_absen_user.php")
+        Call<ArrayList<DataAbsen>> dataAbsensi();
+
+        @GET("get_absen_user_by_id.php")
+        Call<ArrayList<DataAbsenPerUser>> dataAbsenPerUser(
+                @Query("id_absen") String idAbsen);
+
+        @PUT("update_absen_user.php")
+        Call<UpdateAbsen> updateAbsen(
+                @Query("id_user") String idUser);
 
         @FormUrlEncoded
         @POST("login_user.php")
@@ -117,7 +141,8 @@ public class API {
         Call<RegisterUser> registerUsers(
                 @Field("nama") String nama,
                 @Field("vsusername") String vsusername,
-                @Field("vspassword") String vspassword);
+                @Field("vspassword") String vspassword,
+                @Field("id_admin") String idAdmin);
 
         @FormUrlEncoded
         @POST("register_user.php")
@@ -137,21 +162,11 @@ public class API {
         @FormUrlEncoded
         @POST("absen_user.php")
         Call<ResponseBody> addAbsen(
-                @Field("id") String id,
                 @Field("nama") String nama,
                 @Field("lokasi") String lokasi,
                 @Field("status_absen") String status_absen,
+                @Field("id_absen") String id_absen,
                 @Field("gambar") String gambar);
-
-        @DELETE("absen_keluar.php")
-        Call<AbsenKeluar> delAbsen(
-                @Query("id") String id);
-
-        @GET("get_lokasi.php")
-        Call<ArrayList<DataLokasi>> dataLokasi();
-
-        @GET("get_absen_user.php")
-        Call<ArrayList<DataAbsen>> dataAbsensi();
 
         @FormUrlEncoded
         @POST("upload.php")

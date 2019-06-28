@@ -2,7 +2,7 @@ package com.saliim.absensimobile.model.absensi;
 
 import com.google.gson.annotations.SerializedName;
 
-public class DataAbsen{
+public class DataAbsenPerUser{
 
 	@SerializedName("status_absen")
 	private String statusAbsen;
@@ -95,7 +95,7 @@ public class DataAbsen{
 	@Override
  	public String toString(){
 		return 
-			"DataAbsen{" + 
+			"DataAbsenPerUser{" + 
 			"status_absen = '" + statusAbsen + '\'' + 
 			",nama = '" + nama + '\'' + 
 			",jam_masuk = '" + jamMasuk + '\'' + 
