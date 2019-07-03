@@ -1,4 +1,4 @@
-package com.saliim.absensimobile.Admin
+package com.saliim.absensimobile.admin
 
 import android.content.Intent
 import android.os.Bundle
@@ -36,7 +36,7 @@ class AdminActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         setContentView(R.layout.activity_admin)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-        supportActionBar!!.title = "Admin Activity"
+        supportActionBar!!.title = "Admin "+LoginActivity.name
 
         getDataAbsen()
 
@@ -59,21 +59,21 @@ class AdminActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.admin, menu)
-        return true
-    }
+//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        menuInflater.inflate(R.menu.admin, menu)
+//        return true
+//    }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            R.id.action_settings -> true
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        return when (item.itemId) {
+//            R.id.action_settings -> true
+//            else -> super.onOptionsItemSelected(item)
+//        }
+//    }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
@@ -111,7 +111,7 @@ class AdminActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                     dataAbsensis = response.body()
                     Log.i("dataAbsen", "" + dataAbsensis)
 
-                    if (dataAbsensis == null){
+                    if (dataAbsensis!!.isEmpty()){
                         Toast.makeText(this@AdminActivity, "Data Kosong", Toast.LENGTH_SHORT).show()
                     } else {
                         recycler_absensi?.setHasFixedSize(true)

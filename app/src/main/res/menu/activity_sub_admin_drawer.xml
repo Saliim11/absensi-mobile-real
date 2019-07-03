@@ -5,15 +5,7 @@
 
     <group android:checkableBehavior="none">
         <item
-            android:id="@+id/add_admin"
-            android:icon="@drawable/add_user"
-            android:title="Tambah SubAdmin" />
-        <item
-            android:id="@+id/add_location"
-            android:icon="@drawable/add_location"
-            android:title="Tambah Lokasi" />
-        <item
-            android:id="@+id/logout"
+            android:id="@+id/logout_sub_admin"
             android:icon="@drawable/logout"
             android:title="Logout" />
 

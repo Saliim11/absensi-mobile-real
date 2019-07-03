@@ -58,20 +58,34 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         btn_reg_submit.setOnClickListener { v ->
-            registerNorUser()
+            val inputFN = et_reg_nama.text.toString()
+            val inputUN = et_reg_username.text.toString()
+            val inputPW = et_reg_password.text.toString()
+            val inputSA = spn_sub_admin.selectedItem
 
+            if (inputFN.isEmpty()){
+                et_reg_nama.error = "tidak boleh kosong"
+            }else if (inputUN.isEmpty()){
+                et_reg_username.error = "tidak boleh kosong"
+            }else if (inputPW.isEmpty()){
+                et_reg_password.error = "tidak boleh kosong"
+            }else if (inputSA == null){
+                Toast.makeText(this@RegisterActivity, "Pilih Admin terlebih dahulu", Toast.LENGTH_SHORT).show()
+            }else{
+                registerNorUser()
+            }
         }
     }
 
     fun registerNorUser(){
+        val progressDialog = ProgressDialog(this@RegisterActivity)
+        progressDialog.setMessage("Membuat User Baru......")
+        progressDialog.show()
+
         val inNama = et_reg_nama.text.toString()
         val inRegUn = et_reg_username.text.toString()
         val inRegPw = et_reg_password.text.toString()
 //        val idAdmin = spn_sub_admin.selectedItem.toString()
-
-        val progressDialog = ProgressDialog(this@RegisterActivity)
-        progressDialog.setMessage("Membuat User Baru......")
-        progressDialog.show()
 
         API.registerUsers(inNama, inRegUn, inRegPw, id_admin).enqueue(object : Callback<RegisterUser> {
             override fun onResponse(call: Call<RegisterUser>, response: Response<RegisterUser>) {

@@ -2,6 +2,7 @@ package com.saliim.absensimobile.api;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.saliim.absensimobile.model.absensi.DataAbsenPerIdAdmin;
 import com.saliim.absensimobile.model.absensi.DataAbsenPerUser;
 import com.saliim.absensimobile.model.absensi.UpdateAbsen;
 import com.saliim.absensimobile.model.users.DataSubAdmin;
@@ -12,6 +13,7 @@ import com.saliim.absensimobile.model.lokasi.InsertLokasi;
 import com.saliim.absensimobile.model.registerUser.RegisterAdmin;
 import com.saliim.absensimobile.model.registerUser.RegisterUser;
 import com.saliim.absensimobile.model.uploadGambar.BaseResponse;
+import com.saliim.absensimobile.model.users.DataUsersBySubAdmin;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -65,19 +67,29 @@ public class API {
         return service.dataSubAdmin();
     }
 
+    public static Call<ArrayList<DataUsersBySubAdmin>> dataUserPerAdminId(String idAdmin) {
+        AbsensiService service = getInstance().create(AbsensiService.class);
+        return service.dataUserPerAdminId(idAdmin);
+    }
+
     public static Call<ArrayList<DataAbsen>> dataAbsensi() {
         AbsensiService service = getInstance().create(AbsensiService.class);
         return service.dataAbsensi();
     }
 
-    public static Call<ArrayList<DataAbsenPerUser>> dataAbsenPerUser(String idAbsen) {
+    public static Call<ArrayList<DataAbsenPerUser>> dataAbsenPerUser(String idUser) {
         AbsensiService service = getInstance().create(AbsensiService.class);
-        return service.dataAbsenPerUser(idAbsen);
+        return service.dataAbsenPerUser(idUser);
     }
 
-    public static Call<UpdateAbsen> updateAbsen(String idUser) {
+    public static Call<ArrayList<DataAbsenPerIdAdmin>> dataAbsenPerAdminId(String idAdmin, String idUser, String jamMasuk) {
         AbsensiService service = getInstance().create(AbsensiService.class);
-        return service.updateAbsen(idUser);
+        return service.dataAbsenPerAdminId(idAdmin, idUser, jamMasuk);
+    }
+
+    public static Call<UpdateAbsen> updateAbsen(String idAbsen) {
+        AbsensiService service = getInstance().create(AbsensiService.class);
+        return service.updateAbsen(idAbsen);
     }
 
     public static Call<LoginUser> loginUsers(String vsusername, String vspassword) {
@@ -100,9 +112,9 @@ public class API {
         return service.addLokasi(lokasi, latitude, longitude, radius);
     }
 
-    public static Call<ResponseBody> addAbsen(String nama, String lokasi, String status_absen, String id_admin, String gambar) {
+    public static Call<ResponseBody> addAbsen(String nama, String lokasi, String status_absen, String id_user, String gambar) {
         AbsensiService service = getInstance().create(AbsensiService.class);
-        return service.addAbsen(nama, lokasi, status_absen, id_admin, gambar);
+        return service.addAbsen(nama, lokasi, status_absen, id_user, gambar);
     }
 
     public static Call<BaseResponse> uploadPhotoBase64(String action, String photo){
@@ -119,16 +131,26 @@ public class API {
         @GET("get_sub_admin.php")
         Call<ArrayList<DataSubAdmin>> dataSubAdmin();
 
+        @GET("get_user_by_admin_id.php")
+        Call<ArrayList<DataUsersBySubAdmin>> dataUserPerAdminId(
+                @Query("id_admin") String idAdmin);
+
         @GET("get_absen_user.php")
         Call<ArrayList<DataAbsen>> dataAbsensi();
 
         @GET("get_absen_user_by_id.php")
         Call<ArrayList<DataAbsenPerUser>> dataAbsenPerUser(
-                @Query("id_absen") String idAbsen);
+                @Query("id_user") String idUser);
+
+        @GET("get_absen_user_by_admin_id.php")
+        Call<ArrayList<DataAbsenPerIdAdmin>> dataAbsenPerAdminId(
+                @Query("id_admin") String idAdmin,
+                @Query("id_user") String idUser,
+                @Query("jam_masuk") String jamMasuk);
 
         @PUT("update_absen_user.php")
         Call<UpdateAbsen> updateAbsen(
-                @Query("id_user") String idUser);
+                @Query("id_absen") String idAbsen);
 
         @FormUrlEncoded
         @POST("login_user.php")
@@ -145,7 +167,7 @@ public class API {
                 @Field("id_admin") String idAdmin);
 
         @FormUrlEncoded
-        @POST("register_user.php")
+        @POST("register_admin.php")
         Call<RegisterAdmin> registerAdmins(
                 @Field("nama") String nama,
                 @Field("vsusername") String vsusername,
@@ -165,7 +187,7 @@ public class API {
                 @Field("nama") String nama,
                 @Field("lokasi") String lokasi,
                 @Field("status_absen") String status_absen,
-                @Field("id_absen") String id_absen,
+                @Field("id_user") String id_user,
                 @Field("gambar") String gambar);
 
         @FormUrlEncoded

@@ -1,4 +1,4 @@
-package com.saliim.absensimobile.Admin
+package com.saliim.absensimobile.admin
 
 import android.app.ProgressDialog
 import android.content.Intent
@@ -27,12 +27,23 @@ class RegisterAdminActivity : AppCompatActivity() {
 
         toolbar = findViewById<View>(R.id.toolbars) as Toolbar
         setSupportActionBar(toolbar)
-        supportActionBar!!.title = "Register Admin"
+        supportActionBar!!.title = "Register SubAdmin"
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.setDisplayShowHomeEnabled(true)
 
         btn_reg_submit.setOnClickListener {
-            registerAdmin()
+            val inputFN = et_reg_nama.text.toString()
+            val inputUN = et_reg_username.text.toString()
+            val inputPW = et_reg_password.text.toString()
+            if (inputFN.isEmpty()){
+                et_reg_nama.error = "tidak boleh kosong"
+            }else if (inputUN.isEmpty()){
+                et_reg_username.error = "tidak boleh kosong"
+            }else if (inputPW.isEmpty()){
+                et_reg_password.error = "tidak boleh kosong"
+            }else{
+                registerAdmin()
+            }
         }
     }
 
@@ -61,7 +72,7 @@ class RegisterAdminActivity : AppCompatActivity() {
                     progressDialog.dismiss()
                     finish()
                 }else{
-                    Toast.makeText(this@RegisterAdminActivity, "gagal1", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@RegisterAdminActivity, "gagal", Toast.LENGTH_SHORT).show()
                     progressDialog.dismiss()
                 }
             }

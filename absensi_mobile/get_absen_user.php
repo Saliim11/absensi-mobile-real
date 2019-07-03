@@ -4,7 +4,7 @@ include "connect.php";
 
 $con = mysqli_connect(HOST,USER,PASSWORD,DATABASE);
 
-$reference = "SELECT * FROM `absen_user`";
+$reference = "SELECT * FROM `absen_user` ORDER BY `jam_masuk` DESC";
 $resultReference = mysqli_query($con, $reference);
 
 $response = array();

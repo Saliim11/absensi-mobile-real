@@ -21,24 +21,15 @@
     xmlns:type="http://schemas.android.com/tools"
     android:orientation="vertical">
 
-
-    <!--<data>-->
-        <!--<variable android:name= "buttonEnable" android:type="ObservableBoolean"/>-->
-    <!--</data>-->
-
-    <!--<Button-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_gravity="center_vertical"-->
-        <!--android:text="@string/add_geofences"-->
-        <!--android:onClick="Geofenceattach"/>-->
-
-    <!--<Button-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_gravity="center_vertical|right"-->
-        <!--android:text="@string/remove_geofences"-->
-        <!--android:onClick="removeGeofencesButtonHandler"/>-->
+    <ImageView
+        android:id="@+id/btn_logout_user"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="end"
+        android:layout_marginTop="60dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginEnd="10dp"
+        android:src="@drawable/logout"/>
 
     <ImageView
         android:id="@+id/imageView"

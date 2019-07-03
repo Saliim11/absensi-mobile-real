@@ -8,7 +8,7 @@ $date = date("Y-m-d H:i:s");
 
 $response = array();
 
-$id_absen = $_POST['id_absen'];
+$id_user = $_POST['id_user'];
 $nama = $_POST['nama'];
 $lokasi = $_POST['lokasi'];
 $status_absen = $_POST['status_absen'];
@@ -19,7 +19,7 @@ $ImagePath = "$gambar";
  
 $ServerURL = "$ImagePath";
 
-$sql = "INSERT INTO absen_user(id_user, nama, lokasi, status_absen, id_absen, gambar, jam_masuk) VALUES(UUID(),'$nama','$lokasi','$status_absen','$id_absen','$ServerURL','".date('Y-m-d H:i:s')."')";
+$sql = "INSERT INTO absen_user(id_absen, nama, lokasi, status_absen, id_user, gambar, jam_masuk) VALUES(UUID(),'$nama','$lokasi','$status_absen','$id_user','$ServerURL','".date('Y-m-d H:i:s')."')";
 
 $result = mysqli_query($con, $sql);
 

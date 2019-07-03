@@ -7,10 +7,10 @@ date_default_timezone_set('Asia/Jakarta');
 
 $response = array();
 
-$id_user = $_GET['id_user'];
+$id_absen = $_GET['id_absen'];
 $jam_pulang = date('Y-m-d H:i:s');
 
-$sql = "UPDATE `absen_user` SET `jam_pulang` = '$jam_pulang' WHERE id_user = '$id_user' ";
+$sql = "UPDATE `absen_user` SET `jam_pulang` = '$jam_pulang' WHERE id_absen = '$id_absen' ";
 
 $result = mysqli_query($con, $sql);
 

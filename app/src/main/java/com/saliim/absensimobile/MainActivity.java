@@ -119,10 +119,10 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
 //    private Uri uri;
 
-    String dates, dateNow, idUser;
+    String dates, dateNow, idAbsen;
     Date date;
 
-    ImageView imageView, mPhoto;
+    ImageView imageView, mPhoto, logout;
     Button mAbsen, mClear;
     RecyclerView recylerAbsen;
     View line;
@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
         toolbar = findViewById(R.id.toolbars);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Absen User");
+        getSupportActionBar().setTitle("Absen "+ LoginActivity.name);
 
         mPhoto = findViewById(R.id.btn_tp);
         imageView = findViewById(R.id.imageView);
@@ -144,11 +144,13 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         mClear = findViewById(R.id.clear);
         recylerAbsen = findViewById(R.id.recycler_absensi_perUser);
         line = findViewById(R.id.line1);
+        logout = findViewById(R.id.btn_logout_user);
 
         imageView.setVisibility(View.GONE);
         mAbsen.setVisibility(View.GONE);
         mClear.setVisibility(View.GONE);
         mPhoto.setVisibility(View.VISIBLE);
+        logout.setVisibility(View.VISIBLE);
         recylerAbsen.setVisibility(View.VISIBLE);
         line.setVisibility(View.VISIBLE);
 
@@ -180,6 +182,23 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
             });
 
         mClear.setOnClickListener(v -> clear());
+
+        logout.setOnClickListener(v -> {
+           AlertDialog.Builder builder = new AlertDialog.Builder(this);
+           builder .setTitle("Peringatan")
+                   .setMessage("Anda Yakin ingin Logout?")
+                   .setPositiveButton("Iya", (dialog, which) -> {
+
+                       startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                       finish();
+                   })
+                   .setNegativeButton("Tidak", (dialog, which) -> {
+                       dialog.dismiss();
+                   });
+
+           builder.create();
+           builder.show();
+        });
 
     }
 
@@ -219,8 +238,8 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
             return;
         }
 
-        Log.i("hari itu", String.valueOf(date));
-        Log.i("hari itu2", dates);
+//        Log.i("hari itu", String.valueOf(date));
+//        Log.i("hari itu2", dates);
         if (dateNow.equals(dates)){
             updateAbsen();
         }else{
@@ -287,13 +306,13 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
     public void IsiAbsen(String gambarPath){
 
-        String id_absen = LoginActivity.id;
+        String id_user = LoginActivity.id;
         String nama = LoginActivity.name;
         String lokasi = GeofenceTransitionsJobIntentService.namaLokasi;
         String status = "HADIR";
         String gambar = gambarPath;
 
-        API.addAbsen(nama, lokasi, status, id_absen, gambar).enqueue(new Callback<ResponseBody>() {
+        API.addAbsen(nama, lokasi, status, id_user, gambar).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.code() == 200){
@@ -669,6 +688,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         mAbsen.setVisibility(View.GONE);
         mClear.setVisibility(View.GONE);
         mPhoto.setVisibility(View.VISIBLE);
+        logout.setVisibility(View.VISIBLE);
         recylerAbsen.setVisibility(View.VISIBLE);
         line.setVisibility(View.VISIBLE);
 
@@ -678,6 +698,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
         // Toggle Visibility of the views
         mPhoto.setVisibility(View.GONE);
+        logout.setVisibility(View.GONE);
         recylerAbsen.setVisibility(View.GONE);
         line.setVisibility(View.GONE);
         mAbsen.setVisibility(View.VISIBLE);
@@ -759,16 +780,16 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
     }
 
     private void getDataAbsenPerUser() {
-        String id_absen = LoginActivity.id;
+        String id_user = LoginActivity.id;
 
-        API.dataAbsenPerUser(id_absen).enqueue(new Callback<ArrayList<DataAbsenPerUser>>() {
+        API.dataAbsenPerUser(id_user).enqueue(new Callback<ArrayList<DataAbsenPerUser>>() {
             @Override
             public void onResponse(Call<ArrayList<DataAbsenPerUser>> call, Response<ArrayList<DataAbsenPerUser>> response) {
                 if(response.code() == 200){
                     dataAbsensiperUsers = response.body();
                     Log.d("dataAbsensiperUser", String.valueOf(dataAbsensiperUsers));
 
-                    if (dataAbsensiperUsers == null){
+                    if (dataAbsensiperUsers.isEmpty()){
                         Toast.makeText(MainActivity.this, "data kosong", Toast.LENGTH_SHORT).show();
                     }else{
                         recylerAbsen.hasFixedSize();
@@ -776,7 +797,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
                         recylerAbsen.setAdapter(new AbsensiPerUserAdapter(dataAbsensiperUsers));
 
                         dates = response.body().get(0).getJamMasuk();
-                        idUser = response.body().get(0).getIdUser();
+                        idAbsen = response.body().get(0).getIdAbsen();
 
                         try {
                             date = new SimpleDateFormat("yyyy-MM-dd").parse(dates);
@@ -799,7 +820,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
     }
 
     private void updateAbsen() {
-        API.updateAbsen(idUser).enqueue(new Callback<UpdateAbsen>() {
+        API.updateAbsen(idAbsen).enqueue(new Callback<UpdateAbsen>() {
             @Override
             public void onResponse(Call<UpdateAbsen> call, Response<UpdateAbsen> response) {
                 if (response.code() == 200){
