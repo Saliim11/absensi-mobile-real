@@ -26,14 +26,10 @@ import retrofit2.Response
 
 class LoginActivity : AppCompatActivity() {
 
-    private var toolbar: Toolbar? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-        toolbar = findViewById(R.id.toolbars)
-        setSupportActionBar(toolbar)
-        supportActionBar!!.title = "Login User"
+
         val etLoginUsername = findViewById<EditText>(R.id.et_login_username)
         val etLoginPassword = findViewById<EditText>(R.id.et_login_password)
         val loginSubmit = findViewById<Button>(R.id.btn_login_submit)
@@ -48,19 +44,17 @@ class LoginActivity : AppCompatActivity() {
 
                     val user = response.body()
 
+                    getSharedPreferences(MY_LOGIN_PREF, Context.MODE_PRIVATE).edit().putString(MY_LOGIN_PREF_KEY, Gson().toJson(user)).apply()
+
                     if (user!!.result == "1") {
 
-                        name = response.body()!!.user.nama
-                        id = response.body()!!.user.id
                         val level = response.body()!!.user.vslevel
-
-                        getSharedPreferences(MY_LOGIN_PREF, Context.MODE_PRIVATE).edit().putString(MY_LOGIN_PREF_KEY, Gson().toJson(user)).apply()
 
                         val savedUser = Gson().fromJson<LoginUser>(this@LoginActivity.getSharedPreferences(MY_LOGIN_PREF, Context.MODE_PRIVATE)
                                 .getString(MY_LOGIN_PREF_KEY, ""), LoginUser::class.java)
 
-                        val user_id = savedUser.user.id
-                        val user_name = savedUser.user.nama
+                        id = savedUser.user.id
+                        name = savedUser.user.nama
 
                         when (level) {
                             "normal user" -> {

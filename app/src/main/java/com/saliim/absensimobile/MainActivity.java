@@ -14,6 +14,7 @@ import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -62,6 +63,9 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static com.saliim.absensimobile.loginRegister.LoginActivity.MY_LOGIN_PREF;
+import static com.saliim.absensimobile.loginRegister.LoginActivity.MY_LOGIN_PREF_KEY;
 
 
 public class MainActivity extends AppCompatActivity implements OnCompleteListener<Void> {
@@ -189,6 +193,9 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
                    .setMessage("Anda Yakin ingin Logout?")
                    .setPositiveButton("Iya", (dialog, which) -> {
 
+                       SharedPreferences preferences = getSharedPreferences(MY_LOGIN_PREF, Context.MODE_PRIVATE);
+                       preferences.edit().remove(MY_LOGIN_PREF_KEY).apply();
+
                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
                        finish();
                    })
@@ -233,8 +240,9 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
     public void Absens(View view){
 
-        if (btnAvailable == false){
+        if (!btnAvailable){
             Toast.makeText(this, "Anda masih di luar lokasi", Toast.LENGTH_SHORT).show();
+//            Log.i("Geo sekarang", GeofenceTransitionsJobIntentService.namaLokasi);
             return;
         }
 
@@ -820,6 +828,10 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
     }
 
     private void updateAbsen() {
+        ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
+        progressDialog.setMessage("memperbarui jam pulang .....");
+        progressDialog.show();
+
         API.updateAbsen(idAbsen).enqueue(new Callback<UpdateAbsen>() {
             @Override
             public void onResponse(Call<UpdateAbsen> call, Response<UpdateAbsen> response) {
@@ -827,14 +839,17 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
                     Log.i("update absen", String.valueOf(response.body()));
                     getDataAbsenPerUser();
                     Toast.makeText(MainActivity.this, "Jam Pulang Telah Di Update", Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
                 }else{
                     Toast.makeText(MainActivity.this, "Jam Pulang Gagal DI Update", Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
                 }
             }
 
             @Override
             public void onFailure(Call<UpdateAbsen> call, Throwable t) {
                 Toast.makeText(MainActivity.this, "gagal Update", Toast.LENGTH_SHORT).show();
+                progressDialog.dismiss();
             }
         });
     }

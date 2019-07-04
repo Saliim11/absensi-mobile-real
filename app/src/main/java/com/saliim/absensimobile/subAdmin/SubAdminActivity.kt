@@ -1,6 +1,7 @@
 package com.saliim.absensimobile.subAdmin
 
 import android.app.ProgressDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -27,6 +28,7 @@ import com.saliim.absensimobile.loginRegister.LoginActivity
 import com.saliim.absensimobile.model.absensi.DataAbsenPerIdAdmin
 import com.saliim.absensimobile.model.users.DataUsersBySubAdmin
 import kotlinx.android.synthetic.main.content_sub_admin.*
+import kotlinx.android.synthetic.main.nav_header_admin.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -48,12 +50,9 @@ class SubAdminActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
         setSupportActionBar(toolbar)
         supportActionBar!!.title = "SubAdmin "+LoginActivity.name
 
-//        val adapter : ArrayAdapter<CharSequence> = ArrayAdapter.createFromResource(
-//                this@SubAdminActivity, R.array.bulan_isi, android.R.layout.simple_spinner_item)
-//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        spn_filter_bulan_sa.adapter = adapter
+        txt_nama?.text = LoginActivity.name
 
-        val items = arrayOf("Bln", "Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des")
+        val items = arrayOf("Semua", "Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des")
         val items_value = arrayOf<String>("","01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, items)
         spn_filter_bulan_sa.adapter = adapter
@@ -146,6 +145,8 @@ class SubAdminActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                 builder.setMessage("Yakin ingin logout?")
                 builder.setPositiveButton("Iya"){dialog, which ->
 
+                    val preferences = getSharedPreferences(LoginActivity.MY_LOGIN_PREF, Context.MODE_PRIVATE)
+                    preferences.edit().remove(LoginActivity.MY_LOGIN_PREF_KEY).apply()
 
                     startActivity(Intent(this@SubAdminActivity, LoginActivity::class.java))
                     finish()
@@ -176,7 +177,7 @@ class SubAdminActivity : AppCompatActivity(), NavigationView.OnNavigationItemSel
                     Log.d("data absen per admin id", dataAbsensis.toString())
 
                     if (dataAbsensis!!.isEmpty()){
-                        Toast.makeText(this@SubAdminActivity, "Data Kosong", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@SubAdminActivity, "Tidak ada Data yg Sesuai", Toast.LENGTH_SHORT).show()
                         progressDialog.dismiss()
                     }else{
                         recycler_absensi_per_admin_id?.hasFixedSize()

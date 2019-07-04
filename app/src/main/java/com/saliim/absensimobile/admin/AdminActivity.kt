@@ -20,10 +20,18 @@ import com.saliim.absensimobile.api.API
 import com.saliim.absensimobile.loginRegister.LoginActivity
 import com.saliim.absensimobile.model.absensi.DataAbsen
 import kotlinx.android.synthetic.main.content_admin.*
+import kotlinx.android.synthetic.main.nav_header_admin.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import kotlin.jvm.java
+import android.R.id.edit
+import android.content.Context
+import android.content.Context.MODE_PRIVATE
+import android.content.SharedPreferences
+import com.saliim.absensimobile.loginRegister.LoginActivity.Companion.MY_LOGIN_PREF
+import com.saliim.absensimobile.loginRegister.LoginActivity.Companion.MY_LOGIN_PREF_KEY
+
 
 class AdminActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -37,6 +45,8 @@ class AdminActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar!!.title = "Admin "+LoginActivity.name
+
+        txt_nama?.text = LoginActivity.name
 
         getDataAbsen()
 
@@ -85,7 +95,8 @@ class AdminActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelect
                 val builder = AlertDialog.Builder(this@AdminActivity)
                 builder.setMessage("Yakin ingin logout?")
                 builder.setPositiveButton("Iya"){dialog, which ->
-
+                    val preferences = getSharedPreferences(MY_LOGIN_PREF, Context.MODE_PRIVATE)
+                    preferences.edit().remove(MY_LOGIN_PREF_KEY).apply()
                     startActivity(Intent(this@AdminActivity, LoginActivity::class.java))
                     finish()
                 }

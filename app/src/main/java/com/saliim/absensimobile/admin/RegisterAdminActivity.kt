@@ -54,7 +54,7 @@ class RegisterAdminActivity : AppCompatActivity() {
 
     private fun registerAdmin() {
         val progressDialog = ProgressDialog(this@RegisterAdminActivity)
-        progressDialog.setMessage("Membuat Lokasi Baru....")
+        progressDialog.setMessage("Membuat SubAdmin Baru....")
         progressDialog.show()
 
         val inNama = et_reg_nama.text.toString()
