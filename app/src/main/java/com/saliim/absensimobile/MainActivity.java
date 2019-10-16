@@ -138,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
+        //initialization widget
         toolbar = findViewById(R.id.toolbars);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Absen "+ LoginActivity.name);
@@ -173,6 +174,7 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
         // Get the geofences used. Geofence data is hard coded in this sample.
         mGeofencingClient = LocationServices.getGeofencingClient(this);
 
+        //set on click
         mAbsen.setOnClickListener(v ->{
 
             if (mResultsBitmap != null){
@@ -209,10 +211,10 @@ public class MainActivity extends AppCompatActivity implements OnCompleteListene
 
     }
 
+    //onStart method for API
     @Override
     public void onStart() {
         super.onStart();
-
         API.dataLokasi().enqueue(new Callback<ArrayList<DataLokasi>>() {
             @Override
             public void onResponse(Call<ArrayList<DataLokasi>> call, Response<ArrayList<DataLokasi>> response) {
